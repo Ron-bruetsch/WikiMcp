@@ -37,16 +37,24 @@ public static class HistoryTool
         CancellationToken ct)
     {
         HistoryInput input = HistoryInput.From(requestContext.Params!.Arguments!);
-        StringBuilder urlBuilder = new($"page/{input.Title}/history?filter={input.Filter.ToString().ToLower()}");
+        StringBuilder urlBuilder = new($"page/{input.Title}/history");
 
+        bool first = true;
+        if (!string.IsNullOrWhiteSpace(input.Filter))
+        {
+            urlBuilder.Append(first ? $"?filter={input.Filter}" : $"&filter={input.Filter}");
+            first = false;
+        }
+        
         if (input.OlderThan is { } ot)
         {
-            urlBuilder.Append($"&older_than={ot}");    
+            urlBuilder.Append(first ? $"?older_than={ot}" : $"&older_than={ot}");
+            first = false;
         }
         
         if (input.NewerThan is { } nt)
         {
-            urlBuilder.Append($"&newer_than={nt}");
+            urlBuilder.Append(first ? $"?newer_than={nt}" : $"&newer_than={nt}");
         }
         
         string url = urlBuilder.ToString();
@@ -54,8 +62,10 @@ public static class HistoryTool
         using HttpResponseMessage response = await httpClient.GetAsync(url, ct);
         
         if (!response.IsSuccessStatusCode)
-        {
-            throw await WikipediaException.FromAsync<HistoryErrorContext>(response, ct);     
+        { 
+            var body = await response.Content.ReadAsStringAsync(ct);
+            Console.WriteLine(body);
+            //throw await WikipediaException.FromAsync<HistoryErrorContext>(response, ct);     
         }
 
         Paged<Revision> page = await response.Content.ReadFromJsonAsync<Paged<Revision>>(ct);

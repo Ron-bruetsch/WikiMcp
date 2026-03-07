@@ -5,36 +5,45 @@ using Server.Wikipedia;
 
 namespace Server.Tools.History;
 
-public enum HistoryFilter
-{
-    Reverted,
-    Anonymous,
-    Bot,
-    Minor
-}
-
 [method: JsonConstructor]
 public readonly struct HistoryInput(
     string title,
     uint? olderThan,
     uint? newerThan,
-    HistoryFilter filter)
+    string? filter)
 {
+    [JsonPropertyName("title")]
     [Description("The title of the wikipedia article")]
     public string Title { get; } = title;
 
+    [JsonPropertyName("olderThan")]
     [Description("The revision ID. Returns the next 20 revisions older than the given revision ID")]
     public uint? OlderThan { get; } = olderThan;
 
+    [JsonPropertyName("newerThan")]
     [Description("The revision ID. Returns the next 20 revisions newer than the given revision ID")]
     public uint? NewerThan { get; } = newerThan;
-
+    
+    [JsonPropertyName("filter")]
     [Description("Filter that returns only revisions with certain tags")]
-    public HistoryFilter Filter { get; } = filter;
+    public string? Filter { get; } = filter;
 
     public static HistoryInput From(IDictionary<string, JsonElement> arguments)
     {
-        throw new NotImplementedException();
+        if (!arguments.TryGetValue("title", out JsonElement title))
+        {
+            throw new  ArgumentException("Expected parameter title");
+        }
+
+        bool ota = arguments.TryGetValue("olderThan", out JsonElement olderThan);
+        bool nta = arguments.TryGetValue("newerThan", out JsonElement newerThan);
+        bool fa = arguments.TryGetValue("filter", out JsonElement filter);
+
+        return new HistoryInput(
+            title.GetString()!,
+            ota ? olderThan.GetUInt32() : null,
+            nta ? newerThan.GetUInt32() : null,
+            fa ? filter.GetString()! : null);
     }
 }
 

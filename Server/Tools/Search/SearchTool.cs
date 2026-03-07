@@ -77,7 +77,7 @@ public static class SearchTool
         {
             Name = Name,
             Description = "Allows to search wikipedia by keywords and titles",
-            Title = "Search Wikipedia Tool",
+            Title = "Search Tool",
             InputSchema = InputSchema,
             OutputSchema = OutputSchema,
         };

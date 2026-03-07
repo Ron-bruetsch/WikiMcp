@@ -99,7 +99,7 @@ public static class HtmlPageTool
         {
             Name = Name,
             Description = "Read the plain content in the wikitext format of the specified wikipedia page",
-            Title = "Read Wikipedia Page Content Tool",
+            Title = "Read Page Content Tool",
             InputSchema = InputSchema
         };
 }
@@ -154,7 +154,7 @@ public static class PageTool
         {
             Name = Name,
             Description = "Reads the information about the wikipedia page as JSON object",
-            Title = "Read Wikipedia Page Tool",
+            Title = "Read Page Tool",
             InputSchema = InputSchema,
             OutputSchema = OutputSchema,
         };
