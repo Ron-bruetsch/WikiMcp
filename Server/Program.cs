@@ -1,5 +1,8 @@
+using System.Net.Http.Headers;
 using ModelContextProtocol.Protocol;
 using ModelContextProtocol.Server;
+using Server.Tools.History;
+using Server.Tools.Media;
 using Server.Tools.Page;
 using Server.Tools.Search;
 
@@ -12,10 +15,12 @@ internal static class Program
 {
     private const string BaseUrl = "https://en.wikipedia.org/w/rest.php/v1/";
     private static readonly HttpClient HttpClient;
+    
     static Program()
     {
         HttpClient = new HttpClient();
         HttpClient.BaseAddress = new Uri(BaseUrl);
+        HttpClient.DefaultRequestHeaders.UserAgent.Add(new ProductInfoHeaderValue("WikiMcp", "1.0"));
     }
     
     private const string Index =
@@ -57,7 +62,10 @@ internal static class Program
         {
             Tools = [
                 SearchTool.Tool(),
-                PageTool.Tool()
+                PageTool.Tool(),
+                HtmlPageTool.Tool(),
+                MediaFileTool.Tool(),
+                HistoryTool.Tool()
             ]
         });
 
@@ -71,6 +79,9 @@ internal static class Program
             {
                 SearchTool.Name => SearchTool.RunAsync(HttpClient, request, ct),
                 PageTool.Name => PageTool.RunAsync(HttpClient, request, ct),
+                HtmlPageTool.Name => HtmlPageTool.RunAsync(HttpClient, request, ct),
+                MediaFileTool.Name => MediaFileTool.RunAsync(HttpClient, request, ct),
+                HistoryTool.Name => HistoryTool.RunAsync(HttpClient, request, ct),
                 _ => ValueTask.FromResult(NotFoundError(request.JsonRpcRequest.Method))
             };
         }

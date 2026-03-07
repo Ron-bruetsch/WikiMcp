@@ -5,21 +5,16 @@ using Server.Wikipedia;
 
 namespace Server.Tools.Page;
 
-public enum PageMode
-{
-    Bare,
-    WithHtml,
-    Html
-}
-
 [method: JsonConstructor]
 public readonly struct PageInput(
-    PageMode mode,
+    string mode,
     string title)
 {
-    [Description("Specifies what information should be included in the response")]
-    public PageMode Mode { get; } = mode;
+    [JsonPropertyName("mode")]
+    [Description("Specifies what information should be included in the response. Valid options are bare or html")]
+    public string Mode { get; } = mode;
 
+    [JsonPropertyName("title")]
     [Description("The title of the wikipedia page that should be retrieved")]
     public string Title { get; } = title;
 
@@ -36,7 +31,7 @@ public readonly struct PageInput(
         }
 
         return new PageInput(
-            Enum.Parse<PageMode>(mode.ToString()!),
+            mode.GetString()!,
             title.ToString()!);
     }
 }
@@ -61,4 +56,11 @@ public readonly struct PageOutput(
     public string? Html { get; } = html;
     
     public string? Source { get; } = source;
+}
+
+[method: JsonConstructor]
+public readonly struct ConvertObject(string html)
+{
+    [JsonPropertyName("html")]
+    public string Html { get; } = html;
 }

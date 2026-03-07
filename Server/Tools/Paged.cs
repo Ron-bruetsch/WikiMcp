@@ -9,7 +9,24 @@ namespace Server.Tools;
 /// <typeparam name="T"></typeparam>
 [method: JsonConstructor]
 public readonly struct Paged<T>(
-    IEnumerable<T> items)
+    IEnumerable<T>? pages,
+    IEnumerable<T>? revisions,
+    IEnumerable<T>? files)
 {
-    public IEnumerable<T> Items { get; } = items;   
+    [JsonPropertyName("pages")]
+    public IEnumerable<T>? Pages { get; } = pages;   
+    
+    [JsonPropertyName("revisions")]
+    public IEnumerable<T>? Revisions { get; } = revisions;
+    
+    [JsonPropertyName("files")]
+    public IEnumerable<T>? Files { get; } = files;
+}
+
+[method: JsonConstructor]
+public readonly struct McpOutput<T>(T value)
+{
+    public string Type { get; } = "object";
+
+    public T Value { get; } = value;
 }

@@ -8,9 +8,9 @@ public readonly struct MediaFile(
     string title,
     string fileDescriptionUrl,
     MediaFileLatest latest,
-    Thumbnail preferred,
-    Thumbnail original,
-    Thumbnail thumbnail)
+    Thumbnail? preferred,
+    Thumbnail? original,
+    Thumbnail? thumbnail)
 {
     [JsonPropertyName("title")]
     public string Title { get; } = title;
@@ -22,13 +22,13 @@ public readonly struct MediaFile(
     public MediaFileLatest Latest { get; } = latest;
     
     [JsonPropertyName("preferred")]
-    public Thumbnail Preferred { get; } = preferred;
+    public Thumbnail? Preferred { get; } = preferred;
     
     [JsonPropertyName("original")]
-    public Thumbnail Original { get; } = original;
+    public Thumbnail? Original { get; } = original;
     
     [JsonPropertyName("thumbnail")]
-    public Thumbnail Thumbnail { get; } = thumbnail;
+    public Thumbnail? Thumbnail { get; } = thumbnail;
 }
 
 [method: JsonConstructor]

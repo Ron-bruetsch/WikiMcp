@@ -13,26 +13,30 @@ public enum SearchType
 
 [method: JsonConstructor]
 public readonly struct SearchInput(
-    SearchType searchType,
+    string searchMode,
     string term,
     byte limit = 50)
 {
-    public SearchType Type { get; } = searchType; 
+    [JsonPropertyName("searchMode")]
+    [Description("The search type. Valid values are keyword or title")]
+    public string SearchMode { get; } = searchMode; 
 
+    [JsonPropertyName("term")]
     [Description("Search terms")]
     public string Term { get; } = term;
 
+    [JsonPropertyName("limit")]
     [Description("Maximum number of search results to return, between 1 and 100. Default: 50")]
     public byte Limit { get; } = limit;
 
     public static SearchInput From(IDictionary<string, JsonElement> arguments)
     {
-        if (!arguments.TryGetValue("type", out JsonElement type))
+        if (!arguments.TryGetValue("searchMode", out JsonElement searchMode))
         {
             throw new ArgumentException($"Expected parameter $type");
         }
 
-        if (!arguments.TryGetValue("term", out var term))
+        if (!arguments.TryGetValue("term", out JsonElement term))
         {
             throw new ArgumentException($"Expected parameter $term");
         }
@@ -40,7 +44,7 @@ public readonly struct SearchInput(
         bool result = arguments.TryGetValue("limit", out JsonElement limit);
 
         return new SearchInput(
-            Enum.Parse<SearchType>(type.GetString()!),
+            searchMode.GetString()!,
             term.GetString()!,
             result ? limit.GetByte() : (byte)50);
     }
