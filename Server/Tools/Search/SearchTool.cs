@@ -10,16 +10,17 @@ namespace Server.Tools.Search;
 /// </summary>
 public static class SearchTool
 {
+    public const string Name = "search-wikipedia-tool";
+    
     private static readonly JsonElement InputSchema = JsonDocument
         .Parse(JsonSerializer.SerializeToUtf8Bytes(
             JsonSerializerOptions.Default.GetJsonSchemaAsNode(typeof(SearchInput))))
-        .RootElement
-        .Clone();
+        .RootElement;
 
     private static readonly JsonElement OutputSchema = JsonDocument.Parse(
             JsonSerializer.SerializeToUtf8Bytes(
                 JsonSerializerOptions.Default.GetJsonSchemaAsNode(typeof(SearchInput))))
-        .RootElement.Clone();
+        .RootElement;
     
     public static async ValueTask<CallToolResult> RunAsync(
         HttpClient httpClient,
@@ -40,7 +41,8 @@ public static class SearchTool
         response.EnsureSuccessStatusCode();
 
         Paged<Transfer.Search> page = await response.Content.ReadFromJsonAsync<Paged<Transfer.Search>>(ct);
-        IEnumerable<SearchOutput> output = page.Items.Select(x => new SearchOutput(x.Title, x.Excerpt, x.Description, x.Thumbnail));
+        IEnumerable<SearchOutput> output = page.Items.Select(x =>
+            new SearchOutput(x.Title, x.Excerpt, x.Description, x.Thumbnail));
         
         return new CallToolResult()
         {
@@ -52,7 +54,7 @@ public static class SearchTool
     public static Tool Tool() =>
         new()
         {
-            Name = "search-wikipedia-tool",
+            Name = Name,
             Description = "Allows to search wikipedia by keywords and titles",
             Title = "Search Wikipedia Tool",
             InputSchema = InputSchema,

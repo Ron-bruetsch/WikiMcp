@@ -1,8 +1,12 @@
 using ModelContextProtocol.Protocol;
 using ModelContextProtocol.Server;
+using Server.Tools.Page;
 using Server.Tools.Search;
 
 namespace Server;
+
+// todo: https://learn.microsoft.com/en-us/aspnet/web-api/overview/security/basic-authentication
+// todo: https://learn.microsoft.com/en-us/aspnet/core/security/authentication/configure-jwt-bearer-authentication?view=aspnetcore-10.0
 
 internal static class Program
 {
@@ -53,6 +57,7 @@ internal static class Program
         {
             Tools = [
                 SearchTool.Tool(),
+                PageTool.Tool()
             ]
         });
 
@@ -64,7 +69,8 @@ internal static class Program
         {
             return request.Params!.Name switch
             {
-                "search-wikipedia-tool" => SearchTool.RunAsync(HttpClient, request, ct),
+                SearchTool.Name => SearchTool.RunAsync(HttpClient, request, ct),
+                PageTool.Name => PageTool.RunAsync(HttpClient, request, ct),
                 _ => ValueTask.FromResult(NotFoundError(request.JsonRpcRequest.Method))
             };
         }
