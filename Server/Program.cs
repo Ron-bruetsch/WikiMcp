@@ -1,5 +1,6 @@
 using System.Net.Http.Headers;
 using System.Text.Json;
+using System.Text.Json.Serialization;
 using ModelContextProtocol.Protocol;
 using ModelContextProtocol.Server;
 using Server.Errors;
@@ -9,9 +10,6 @@ using Server.Tools.Page;
 using Server.Tools.Search;
 
 namespace Server;
-
-// todo: https://learn.microsoft.com/en-us/aspnet/web-api/overview/security/basic-authentication
-// todo: https://learn.microsoft.com/en-us/aspnet/core/security/authentication/configure-jwt-bearer-authentication?view=aspnetcore-10.0
 
 internal static class Program
 {
@@ -95,24 +93,16 @@ internal static class Program
 
     private static CallToolResult FromException(Exception ex)
     {
-        return ex switch
+        ErrorWrapper error = ex switch
         {
-            WikiMcpException or WikipediaException => new CallToolResult()
-            {
-                IsError = true,
-                StructuredContent = JsonSerializer.SerializeToElement(ex)
-            },
-            _ => new CallToolResult()
-            {
-                IsError = true,
-                Content =
-                [
-                    new TextContentBlock()
-                    {
-                        Text = ex.Message
-                    }
-                ]
-            }
+            WikiMcpException exception => new ErrorWrapper(new WikiErrorResponse(exception)),
+            _ => new ErrorWrapper(new ErrorResponse("Server error", ex))
+        };
+
+        return new CallToolResult()
+        {
+            IsError = true,
+            StructuredContent = JsonSerializer.SerializeToElement(error)
         };
     }
     
@@ -128,4 +118,26 @@ internal static class Program
                 }
             ]
         };
+}
+
+public readonly struct ErrorWrapper(
+    ErrorResponse value)
+{
+    public IEnumerable<ErrorResponse> Value { get; } = [value];
+}
+
+public class ErrorResponse(
+    string title,
+    Exception ex)
+{
+    public string Title { get; } = title;
+    
+    public string Message { get; } = ex.Message;
+}
+
+public sealed class WikiErrorResponse(
+    WikiMcpException ex) : ErrorResponse(ex.Title, ex)
+{
+    [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
+    public string? Instruction { get; } =  ex.Message;
 }

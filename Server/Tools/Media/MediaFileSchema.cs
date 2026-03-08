@@ -13,9 +13,13 @@ public readonly struct MediaFileInput(
 
     public static MediaFileInput From(IDictionary<string, JsonElement> arguments)
     {
-        if (!arguments.TryGetValue("title", out JsonElement title))
+        if (!arguments.TryGetValue("title", out JsonElement title)
+            || string.IsNullOrEmpty(title.ToString()))
         {
-            throw new WikiMcpException("Expected parameter 'title'", "Include this property in the request arguments");
+            throw new WikiMcpException(
+                "Validation error",
+                "Expected parameter 'title'", 
+                "Include this property in the request arguments");
         }
         
         return new MediaFileInput(title.GetString()!);

@@ -19,7 +19,8 @@ public readonly struct HistoryErrorContext : IErrorContext
                 return ("Title or revision not found", null);
             default:
                 throw new WikiMcpException(
-                    $"Handling error code {model.HttpCode} for history tool is not supported.");
+                    "Server error",
+                    $"Handling error code '{model.HttpCode}' for history tool is not supported.");
         }
     }
 }

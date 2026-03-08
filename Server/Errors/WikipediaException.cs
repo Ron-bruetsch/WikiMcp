@@ -50,7 +50,7 @@ public sealed class WikipediaException : WikiMcpException
     private WikipediaException(
         HttpStatusCode errorCode,
         string? instruction,
-        string message) : base(message, instruction)
+        string message) : base("API call error", message, instruction)
     {
         ErrorCode = errorCode;
     }

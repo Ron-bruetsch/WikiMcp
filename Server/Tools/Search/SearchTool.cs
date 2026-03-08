@@ -48,7 +48,8 @@ public static class SearchTool
             "keyword" => "search/page",
             "title" => "search/title",
             _ => throw new WikiMcpException(
-                $"Wikipedia search type {input.SearchMode} is not supported. Supported values are 'keyword' or 'title'.")
+                "Server error",
+                $"Wikipedia search type '{input.SearchMode}' is not supported. Supported values are 'keyword' or 'title'.")
         };
 
         url = $"{url}?q={input.Term}&limit={input.Limit}";

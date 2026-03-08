@@ -32,14 +32,16 @@ public readonly struct SearchInput(
 
     public static SearchInput From(IDictionary<string, JsonElement> arguments)
     {
-        if (!arguments.TryGetValue("searchMode", out JsonElement searchMode))
+        if (!arguments.TryGetValue("searchMode", out JsonElement searchMode) 
+            || string.IsNullOrWhiteSpace(searchMode.GetString()))
         {
             throw new WikiMcpException(
                 "Expected parameter 'searchMode'", 
                 "Include the parameter in the request arguments!");
         }
 
-        if (!arguments.TryGetValue("term", out JsonElement term))
+        if (!arguments.TryGetValue("term", out JsonElement term) 
+            || string.IsNullOrWhiteSpace(term.GetString()))
         {
             throw new WikiMcpException(
                 "Expected parameter 'term'",
@@ -47,20 +49,22 @@ public readonly struct SearchInput(
         }
         
         bool result = arguments.TryGetValue("limit", out JsonElement limit);
-
+        
         switch (result)
         {
             case true:
                 if (!limit.TryGetByte(out byte limitValue))
                 {
                     throw new WikiMcpException(
+                        "Validation error",
                         $"Parameter 'limit' must be of type byte. Valid value range is {byte.MinValue} and {byte.MaxValue}.");
                 }
 
                 if (limitValue > 100)
                 {
                     throw new WikiMcpException(
-                        $"Parameter 'limit' must have a value between 1 and 100.");
+                        "Validation error",
+                        "Parameter 'limit' must have a value between 1 and 100.");
                 }
                 
                 return new SearchInput(

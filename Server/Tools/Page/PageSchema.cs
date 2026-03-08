@@ -21,16 +21,20 @@ public readonly struct PageInput(
 
     public static PageInput From(IDictionary<string, JsonElement> arguments)
     {
-        if (!arguments.TryGetValue("mode", out JsonElement mode))
+        if (!arguments.TryGetValue("mode", out JsonElement mode) 
+            || string.IsNullOrWhiteSpace(mode.GetString()))
         {
             throw new WikiMcpException(
+                "Validation error",
                 "Expected parameter 'mode'", 
                 "Include this parameter in the request. Valid values are 'bare' or 'html'");
         }
 
-        if (!arguments.TryGetValue("title", out JsonElement title))
+        if (!arguments.TryGetValue("title", out JsonElement title)  
+            || string.IsNullOrWhiteSpace(title.GetString()))
         {
             throw new WikiMcpException(
+                "Validation error",
                 "Expected parameter 'title'", 
                 "Include this parameter in the request.");
         }

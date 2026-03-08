@@ -17,7 +17,8 @@ public readonly struct MediaFileErrorContext  : IErrorContext
                 "The wikipedia article contains more then 100 media files. This is not supported by the wikipedia API",
                 null),
             404 => ("The requested title was not found", null),
-            _ => throw new NotSupportedException(
+            _ => throw new WikiMcpException(
+                "Server error",
                 $"Handling error code {model.HttpCode} for media file tool is not supported.")
         };
     }
@@ -71,7 +72,9 @@ public static class MediaFileTool
             return await IntoFileContentAsync(httpClient, original, ct);            
         }
         
-        throw new NotSupportedException($"Only getting preferred and original media files are supported.");
+        throw new WikiMcpException(
+            "Server error",
+            "Only getting preferred and original media files are supported.");
     }
 
     private static async Task<ImageContentBlock> IntoFileContentAsync(

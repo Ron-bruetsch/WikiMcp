@@ -31,7 +31,8 @@ public readonly struct HistoryInput(
 
     public static HistoryInput From(IDictionary<string, JsonElement> arguments)
     {
-        if (!arguments.TryGetValue("title", out JsonElement title))
+        if (!arguments.TryGetValue("title", out JsonElement title) 
+            || string.IsNullOrWhiteSpace(title.ToString()))
         {
             throw new WikiMcpException(
                 "Expected parameter title",
@@ -46,11 +47,13 @@ public readonly struct HistoryInput(
         {
             case (true, true):
                 throw new WikiMcpException(
-                    $"Only one of the arguments 'olderThan' and 'newerThan' is allowed at the time!");
+                    "Validation error",
+                    "Only one of the arguments 'olderThan' and 'newerThan' is allowed at the time!");
             case (true, false):
                 if (!olderThan.TryGetUInt32(out uint olderValue))
                 {
                     throw new WikiMcpException(
+                        "Validation error",
                         $"Value for parameter 'olderThan' must be an unsigned integer. Allowed value range is {uint.MinValue} to {uint.MaxValue}!",
                         "Fix your input");
                 }
@@ -63,6 +66,7 @@ public readonly struct HistoryInput(
                 if (!newerThan.TryGetUInt32(out uint newerValue))
                 {
                     throw new WikiMcpException(
+                        "Validation error",
                         $"Value for parameter 'newerThan' must be an unsigned integer. Allowed value range is {uint.MinValue} to {uint.MaxValue}!",
                         "Fix your input");
                 }
