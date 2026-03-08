@@ -7,15 +7,16 @@ using Server.Wikipedia;
 namespace Server.Tools.Search;
 
 [method: JsonConstructor]
+
 public readonly struct SearchInput(
     string searchMode,
     string term,
     byte limit = 50)
 {
     [JsonPropertyName("searchMode")]
-    [Description("The search type. Valid values are keyword or title")]
+    [Description("The search type. Valid values are 'keyword' and 'title'")]
     public string SearchMode { get; } = searchMode; 
-
+    
     [JsonPropertyName("term")]
     [Description("Search terms")]
     public string Term { get; } = term;

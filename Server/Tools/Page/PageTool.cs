@@ -40,8 +40,12 @@ public readonly struct PageErrorContext : IErrorContext
 public static class HtmlPageTool
 {
     public const string Name = "read-wikipedia-page-content-tool";
+    private const string Description =
+        """
+        Retrieves the plain content in the wikitext format of the wikipedia article identified by the title
+        """;
 
-    private static readonly JsonElement InputSchema = Helper.ToJsonSchema(typeof(MediaFileInput));
+    private static readonly JsonElement InputSchema = Helper.ToJsonSchema<MediaFileInput>();
 
     public static async ValueTask<CallToolResult> RunAsync(
         HttpClient httpClient,
@@ -107,7 +111,7 @@ public static class HtmlPageTool
         new()
         {
             Name = Name,
-            Description = "Read the plain content in the wikitext format of the specified wikipedia page",
+            Description = Description,
             Title = "Read Page Content Tool",
             InputSchema = InputSchema
         };
@@ -120,8 +124,14 @@ public static class PageTool
 {
     public const string Name = "read-wikipedia-page-tool";
 
-    private static readonly JsonElement InputSchema = Helper.ToJsonSchema(typeof(PageInput));
-    private static readonly JsonElement OutputSchema = Helper.ToJsonSchema(typeof(McpOutput<PageOutput>));
+    private const string Description =
+        """
+        Retrieves the information about the wikipedia article as JSON object.
+        The JSON object contains information like Id, Title and Url an may include the html of the page
+        """;
+
+    private static readonly JsonElement InputSchema = Helper.ToJsonSchema<PageInput>();
+    private static readonly JsonElement OutputSchema = Helper.ToJsonSchema<McpOutput<PageOutput>>();
 
     public static async ValueTask<CallToolResult> RunAsync(
         HttpClient httpClient,
@@ -160,7 +170,7 @@ public static class PageTool
         new()
         {
             Name = Name,
-            Description = "Reads the information about the wikipedia page as JSON object",
+            Description = Description,
             Title = "Read Page Tool",
             InputSchema = InputSchema,
             OutputSchema = OutputSchema,

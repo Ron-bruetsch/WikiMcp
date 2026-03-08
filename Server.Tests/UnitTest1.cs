@@ -1,11 +1,19 @@
 ﻿using System.Text.Json;
 using Server.Tools;
+using Server.Tools.Search;
 using Server.Wikipedia;
 
 namespace Server.Tests;
 
 public class UnitTest1
 {
+  [Fact]
+  public void Test0()
+  {
+    var t = SearchTool.Tool().InputSchema;
+    Assert.Fail(t.ToString());
+  }
+  
     [Fact]
     public void Test1()
     {

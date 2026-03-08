@@ -1,4 +1,5 @@
-﻿using System.Text.Json.Serialization;
+﻿using System.ComponentModel;
+using System.Text.Json.Serialization;
 
 namespace Server.Tools;
 
@@ -26,6 +27,7 @@ public readonly struct Paged<T>(
 [method: JsonConstructor]
 public readonly struct McpOutput<T>(string type, T value)
 {
+    [Description("The type what is being serialized")]
     public string Type { get; } = type;
 
     public T Value { get; } = value;

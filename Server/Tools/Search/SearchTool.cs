@@ -26,16 +26,14 @@ public readonly struct SearchErrorContext : IErrorContext
 public static class SearchTool
 {
     public const string Name = "search-wikipedia-tool";
-    
-    private static readonly JsonElement InputSchema = JsonDocument
-        .Parse(JsonSerializer.SerializeToUtf8Bytes(
-            JsonSerializerOptions.Default.GetJsonSchemaAsNode(typeof(SearchInput))))
-        .RootElement;
 
-    private static readonly JsonElement OutputSchema = JsonDocument.Parse(
-            JsonSerializer.SerializeToUtf8Bytes(
-                JsonSerializerOptions.Default.GetJsonSchemaAsNode(typeof(McpOutput<IEnumerable<SearchOutput>>))))
-        .RootElement;
+    private const string Description =
+        """
+        Search wikipedia articles by keywords or title. 
+        """;
+
+    private static readonly JsonElement InputSchema = Helper.ToJsonSchema<SearchInput>();
+    private static readonly JsonElement OutputSchema = Helper.ToJsonSchema<McpOutput<IEnumerable<SearchOutput>>>();
     
     public static async ValueTask<CallToolResult> RunAsync(
         HttpClient httpClient,
@@ -72,7 +70,7 @@ public static class SearchTool
         new()
         {
             Name = Name,
-            Description = "Allows to search wikipedia by keywords and titles",
+            Description = Description,
             Title = "Search Tool",
             InputSchema = InputSchema,
             OutputSchema = OutputSchema,

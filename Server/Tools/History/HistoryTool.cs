@@ -29,8 +29,13 @@ public static class HistoryTool
 {
     public const string Name = "get-article-history";
 
-    private static readonly JsonElement InputSchema = Helper.ToJsonSchema(typeof(HistoryInput));
-    private static readonly JsonElement OutputSchema = Helper.ToJsonSchema(typeof(McpOutput<IEnumerable<HistoryOutput>>));
+    private const string Description =
+        """
+        Retrieves the change history of the Wikipedia article identified by the title
+        """;
+
+    private static readonly JsonElement InputSchema = Helper.ToJsonSchema<HistoryInput>();
+    private static readonly JsonElement OutputSchema = Helper.ToJsonSchema<McpOutput<IEnumerable<HistoryOutput>>>();
     
     public static async ValueTask<CallToolResult> RunAsync(
         HttpClient httpClient,
@@ -77,7 +82,7 @@ public static class HistoryTool
         new()
         {
             Name = Name,
-            Description = "Retrieves the change history of a specific Wikipedia article",
+            Description = Description,
             Title = "Get Article History",
             InputSchema = InputSchema,
             OutputSchema = OutputSchema,

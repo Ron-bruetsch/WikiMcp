@@ -1,6 +1,4 @@
-﻿using System.Net.Mime;
-using System.Text;
-using System.Text.Json;
+﻿using System.Text.Json;
 using ModelContextProtocol.Protocol;
 using ModelContextProtocol.Server;
 using Server.Errors;
@@ -30,9 +28,13 @@ public readonly struct MediaFileErrorContext  : IErrorContext
 /// </summary>
 public static class MediaFileTool
 {
-    public const string Name = "retrieve-media-files-tool";
+    public const string Name = "retrieve-article-images-tool";
+    private const string Description =
+        """
+        Retrieves images related to the Wikipedia article identified by the provided title 
+        """;
 
-    private static readonly JsonElement InputSchema = Helper.ToJsonSchema(typeof(MediaFileInput));
+    private static readonly JsonElement InputSchema = Helper.ToJsonSchema<MediaFileInput>();
     
     public static async ValueTask<CallToolResult> RunAsync(
         HttpClient httpClient,
@@ -123,8 +125,8 @@ public static class MediaFileTool
         new()
         {
             Name = Name,
-            Description = "This retrieves media files for a specific Wikipedia article",
-            Title = "Retrieve Media File Tool",
+            Description = Description,
+            Title = "Retrieve Article images Tool",
             InputSchema = InputSchema,
         };
 }
