@@ -1,6 +1,6 @@
 ﻿using System.Text.Json.Serialization;
 
-namespace Server.Transfer;
+namespace Server.Wikipedia;
 
 /// <summary>
 /// Result of a search request to the wikipedia api 

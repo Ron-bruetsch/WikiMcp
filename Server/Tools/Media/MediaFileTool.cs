@@ -2,7 +2,6 @@
 using ModelContextProtocol.Protocol;
 using ModelContextProtocol.Server;
 using Server.Errors;
-using Server.Transfer;
 using Server.Wikipedia;
 
 namespace Server.Tools.Media;

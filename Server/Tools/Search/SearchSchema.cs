@@ -2,15 +2,9 @@
 using System.Text.Json;
 using System.Text.Json.Serialization;
 using Server.Errors;
-using Server.Transfer;
+using Server.Wikipedia;
 
 namespace Server.Tools.Search;
-
-public enum SearchType
-{
-    Keyword,
-    Title
-}
 
 [method: JsonConstructor]
 public readonly struct SearchInput(

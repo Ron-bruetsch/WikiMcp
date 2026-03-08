@@ -61,7 +61,7 @@ public static class SearchTool
             throw await WikipediaException.FromAsync<SearchErrorContext>(response, ct);
         }
 
-        Paged<Transfer.Search> page = await response.Content.ReadFromJsonAsync<Paged<Transfer.Search>>(ct);
+        Paged<Wikipedia.Search> page = await response.Content.ReadFromJsonAsync<Paged<Wikipedia.Search>>(ct);
         IEnumerable<SearchOutput> output = page.Pages!.Select(x =>
             new SearchOutput(x.Title, x.Excerpt, x.Description, x.Thumbnail));
         
