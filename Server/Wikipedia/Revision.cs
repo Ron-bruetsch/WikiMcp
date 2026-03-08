@@ -41,11 +41,11 @@ public readonly struct Revision(
 [method: JsonConstructor]
 public readonly struct PageInfo(
     uint id,
-    string title)
+    string? title)
 {
     [JsonPropertyName("id")]
     public uint Id { get; } = id;
 
     [JsonPropertyName("title")]
-    public string Title { get; } = title;
+    public string? Title { get; } = title;
 }

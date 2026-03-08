@@ -5,6 +5,7 @@ using HtmlAgilityPack;
 using ModelContextProtocol.Protocol;
 using ModelContextProtocol.Server;
 using Server.Errors;
+using Server.Tools.Media;
 
 namespace Server.Tools.Page;
 
@@ -40,7 +41,7 @@ public static class HtmlPageTool
 {
     public const string Name = "read-wikipedia-page-content-tool";
 
-    private static readonly JsonElement InputSchema = Helper.ToJsonSchema(typeof(PageInput));
+    private static readonly JsonElement InputSchema = Helper.ToJsonSchema(typeof(MediaFileInput));
 
     public static async ValueTask<CallToolResult> RunAsync(
         HttpClient httpClient,
@@ -66,11 +67,11 @@ public static class HtmlPageTool
 
         url = $"transform/html/to/wikitext/{title}";
         string html = await response.Content.ReadAsStringAsync(ct); 
-        var dom = new HtmlDocument();
+        HtmlDocument dom = new HtmlDocument();
         dom.LoadHtml(html);
         
-        var bodyNode = dom.DocumentNode.SelectSingleNode("//body");
-        var fragment = bodyNode?.InnerHtml ?? html;
+        HtmlNode? bodyNode = dom.DocumentNode.SelectSingleNode("//body");
+        string fragment = bodyNode?.InnerHtml ?? html;
 
         using HttpRequestMessage message = new(HttpMethod.Post, url);
         message.Content = new StringContent(JsonSerializer.Serialize(new ConvertObject(fragment),
@@ -151,12 +152,8 @@ public static class PageTool
             result.HtmlUrl,
             result.Html,
             result.Source);
-        
-        return new CallToolResult()
-        {
-            IsError = false,
-            StructuredContent = JsonSerializer.SerializeToElement(output)
-        };
+
+        return Helper.AsStructuredContent(new McpOutput<PageOutput>("object", output));
     }
     
     public static Tool Tool() =>

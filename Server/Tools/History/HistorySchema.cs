@@ -32,7 +32,7 @@ public readonly struct HistoryInput(
     public static HistoryInput From(IDictionary<string, JsonElement> arguments)
     {
         if (!arguments.TryGetValue("title", out JsonElement title) 
-            || string.IsNullOrWhiteSpace(title.ToString()))
+            || title.ValueKind != JsonValueKind.String)
         {
             throw new WikiMcpException(
                 "Expected parameter title",
@@ -41,11 +41,20 @@ public readonly struct HistoryInput(
 
         bool ota = arguments.TryGetValue("olderThan", out JsonElement olderThan);
         bool nta = arguments.TryGetValue("newerThan", out JsonElement newerThan);
-        bool fa = arguments.TryGetValue("filter", out JsonElement filter);
+        _ = arguments.TryGetValue("filter", out JsonElement filter);
 
         switch (ota, nta)
         {
             case (true, true):
+                if (olderThan.ValueKind == JsonValueKind.Null && newerThan.ValueKind == JsonValueKind.Null)
+                {
+                    return new HistoryInput(
+                        title.GetString()!,
+                        null,
+                        null,
+                        filter.GetString());
+                }
+                
                 throw new WikiMcpException(
                     "Validation error",
                     "Only one of the arguments 'olderThan' and 'newerThan' is allowed at the time!");

@@ -22,7 +22,7 @@ public readonly struct PageInput(
     public static PageInput From(IDictionary<string, JsonElement> arguments)
     {
         if (!arguments.TryGetValue("mode", out JsonElement mode) 
-            || string.IsNullOrWhiteSpace(mode.GetString()))
+            || mode.ValueKind != JsonValueKind.String)
         {
             throw new WikiMcpException(
                 "Validation error",
@@ -31,7 +31,7 @@ public readonly struct PageInput(
         }
 
         if (!arguments.TryGetValue("title", out JsonElement title)  
-            || string.IsNullOrWhiteSpace(title.GetString()))
+            || title.ValueKind != JsonValueKind.String)
         {
             throw new WikiMcpException(
                 "Validation error",

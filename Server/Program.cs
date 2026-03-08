@@ -4,6 +4,7 @@ using System.Text.Json.Serialization;
 using ModelContextProtocol.Protocol;
 using ModelContextProtocol.Server;
 using Server.Errors;
+using Server.Tools;
 using Server.Tools.History;
 using Server.Tools.Media;
 using Server.Tools.Page;
@@ -93,10 +94,10 @@ internal static class Program
 
     private static CallToolResult FromException(Exception ex)
     {
-        ErrorWrapper error = ex switch
+        McpOutput<IEnumerable<ErrorResponse>> error = ex switch
         {
-            WikiMcpException exception => new ErrorWrapper(new WikiErrorResponse(exception)),
-            _ => new ErrorWrapper(new ErrorResponse("Server error", ex))
+            WikiMcpException exception => new McpOutput<IEnumerable<ErrorResponse>>("object", [new WikiErrorResponse(exception)]),
+            _ => new McpOutput<IEnumerable<ErrorResponse>>("object", [new ErrorResponse("Server error", ex)])
         };
 
         return new CallToolResult()
@@ -118,12 +119,6 @@ internal static class Program
                 }
             ]
         };
-}
-
-public readonly struct ErrorWrapper(
-    ErrorResponse value)
-{
-    public IEnumerable<ErrorResponse> Value { get; } = [value];
 }
 
 public class ErrorResponse(

@@ -64,12 +64,8 @@ public static class SearchTool
         Paged<Wikipedia.Search> page = await response.Content.ReadFromJsonAsync<Paged<Wikipedia.Search>>(ct);
         IEnumerable<SearchOutput> output = page.Pages!.Select(x =>
             new SearchOutput(x.Title, x.Excerpt, x.Description, x.Thumbnail));
-        
-        return new CallToolResult()
-        {
-            IsError = false,
-            StructuredContent = JsonSerializer.SerializeToElement(output)
-        };
+
+        return Helper.AsStructuredContent(new McpOutput<IEnumerable<SearchOutput>>("object", output));
     }
     
     public static Tool Tool() =>

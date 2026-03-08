@@ -69,12 +69,8 @@ public static class HistoryTool
 
         Paged<Revision> page = await response.Content.ReadFromJsonAsync<Paged<Revision>>(ct);
         IEnumerable<HistoryOutput> output = page.Revisions!.Select(x => new HistoryOutput(x));
-        
-        return new CallToolResult()
-        {
-            IsError = false,
-            StructuredContent = JsonSerializer.SerializeToElement(output)
-        };
+
+        return Helper.AsStructuredContent(new McpOutput<IEnumerable<HistoryOutput>>("object", output));
     }
 
     public static Tool Tool() =>

@@ -24,9 +24,9 @@ public readonly struct Paged<T>(
 }
 
 [method: JsonConstructor]
-public readonly struct McpOutput<T>(T value)
+public readonly struct McpOutput<T>(string type, T value)
 {
-    public string Type { get; } = "object";
+    public string Type { get; } = type;
 
     public T Value { get; } = value;
 }

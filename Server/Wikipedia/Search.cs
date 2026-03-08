@@ -41,15 +41,15 @@ public readonly struct Search(
 
 [method: JsonConstructor]
 public readonly struct Thumbnail(
-    string mimetype,
+    string? mimetype,
     uint? size,
     uint? width,
     uint? height,
-    uint? duration,
+    double? duration,
     string url)
 {
-    [JsonPropertyName("mimetype")]
-     public string Mimetype { get; } = mimetype;
+    [JsonPropertyName("mediatype")]
+     public string? Mimetype { get; } = mimetype;
      
      [JsonPropertyName("size")]
      public uint? Size { get; } = size;
@@ -61,7 +61,7 @@ public readonly struct Thumbnail(
      public uint? Height { get; } = height;
      
      [JsonPropertyName("duration")]
-     public uint? Duration { get; } = duration;
+     public double? Duration { get; } = duration;
      
      [JsonPropertyName("url")]
      public string Url { get; } = url;

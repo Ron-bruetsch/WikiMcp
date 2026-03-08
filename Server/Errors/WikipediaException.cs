@@ -65,7 +65,7 @@ public sealed class WikipediaException : WikiMcpException
 
         return new WikipediaException(
             response.StatusCode,
-            instruction,
-            message);
+            "instruction",
+            "message");
     }
 }

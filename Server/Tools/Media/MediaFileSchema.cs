@@ -1,4 +1,5 @@
-﻿using System.Text.Json;
+﻿using System.ComponentModel;
+using System.Text.Json;
 using System.Text.Json.Serialization;
 using Server.Errors;
 
@@ -9,12 +10,13 @@ public readonly struct MediaFileInput(
     string title)
 {
     [JsonPropertyName("title")]
+    [Description("The title of the wikipedia article for which the media files should be retrieved")]
     public string Title { get; } = title;
 
     public static MediaFileInput From(IDictionary<string, JsonElement> arguments)
     {
         if (!arguments.TryGetValue("title", out JsonElement title)
-            || string.IsNullOrEmpty(title.ToString()))
+            || title.ValueKind != JsonValueKind.String)
         {
             throw new WikiMcpException(
                 "Validation error",

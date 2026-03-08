@@ -27,7 +27,7 @@ public readonly struct SearchInput(
     public static SearchInput From(IDictionary<string, JsonElement> arguments)
     {
         if (!arguments.TryGetValue("searchMode", out JsonElement searchMode) 
-            || string.IsNullOrWhiteSpace(searchMode.GetString()))
+            || searchMode.ValueKind != JsonValueKind.String)
         {
             throw new WikiMcpException(
                 "Expected parameter 'searchMode'", 
@@ -35,7 +35,7 @@ public readonly struct SearchInput(
         }
 
         if (!arguments.TryGetValue("term", out JsonElement term) 
-            || string.IsNullOrWhiteSpace(term.GetString()))
+            || term.ValueKind != JsonValueKind.String)
         {
             throw new WikiMcpException(
                 "Expected parameter 'term'",

@@ -1,4 +1,6 @@
-﻿using System.Text.Json;
+﻿using System.Net.Mime;
+using System.Text;
+using System.Text.Json;
 using ModelContextProtocol.Protocol;
 using ModelContextProtocol.Server;
 using Server.Errors;
@@ -47,36 +49,54 @@ public static class MediaFileTool
             throw await WikipediaException.FromAsync<MediaFileErrorContext>(response, ct);
         }
         
-        Paged<MediaFile> content = await response.Content. ReadFromJsonAsync<Paged<MediaFile>>(ct);
-        IEnumerable<Task<ImageContentBlock>> tasks = content.Files!.Select(x => IntoFileContentAsync(httpClient, x, ct));
+        Paged<MediaFile> content = await response.Content.ReadFromJsonAsync<Paged<MediaFile>>(ct);
+        List<Task<ContentBlock?>> tasks = content.Files!.Select(x => TryIntoFileContentAsync(httpClient, x, ct)).ToList();
+
+        ContentBlock?[] imageContents = await Task.WhenAll(tasks);
+
+        IEnumerable<ContentBlock> output = imageContents
+            .Where(x => x is not null)
+            .Select(x => x!);
         
         return new CallToolResult()
         {
             IsError = false,
-            Content = [..await Task.WhenAll(tasks)]
+            Content = [..output]
         };
     }
     
-    private static async Task<ImageContentBlock> IntoFileContentAsync(
+    private static async Task<ContentBlock?> TryIntoFileContentAsync(
         HttpClient httpClient,
         MediaFile model, CancellationToken ct) 
     {
-        if (model.Preferred is { } preferred)
+        try
         {
-            return await IntoFileContentAsync(httpClient, preferred, ct);
+            if (model.Preferred is { } preferred)
+            {
+                if (preferred.Mimetype == "DRAWING" || preferred.Mimetype == "BITMAP")
+                {
+                    return await IntoFileContentAsync(httpClient, preferred, ct);
+                }
+
+            }
+
+            if (model.Original is { } original)
+            {
+                if (original.Mimetype == "DRAWING" || original.Mimetype == "BITMAP")
+                {
+                    return await IntoFileContentAsync(httpClient, original, ct);
+                }
+            }
+        }
+        catch (Exception)
+        {
+            return null;
         }
 
-        if (model.Original is { } original)
-        {
-            return await IntoFileContentAsync(httpClient, original, ct);            
-        }
-        
-        throw new WikiMcpException(
-            "Server error",
-            "Only getting preferred and original media files are supported.");
+        return null;
     }
 
-    private static async Task<ImageContentBlock> IntoFileContentAsync(
+    private static async Task<ContentBlock> IntoFileContentAsync(
         HttpClient httpClient,
         Thumbnail model,
         CancellationToken ct)
@@ -86,12 +106,17 @@ public static class MediaFileTool
         {
             throw await WikipediaException.FromAsync<MediaFileErrorContext>(response, ct);
         }
-            
-        return new ImageContentBlock()
+
+        if (response.Content.Headers.ContentType?.MediaType == "image/svg+xml")
         {
-            Data = await response.Content.ReadAsByteArrayAsync(ct),
-            MimeType = response.Content.Headers.ContentType?.MediaType ?? "image/svg+xml",
-        };
+            return new TextContentBlock()
+            {
+                Text = await response.Content.ReadAsStringAsync(ct)
+            };
+        }
+
+        byte[] data = await response.Content.ReadAsByteArrayAsync(ct);
+        return ImageContentBlock.FromBytes(data, response.Content.Headers.ContentType?.MediaType ?? "image/svg+xml");
     }
 
     public static Tool Tool() =>
