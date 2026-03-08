@@ -1,6 +1,7 @@
 ﻿using System.ComponentModel;
 using System.Text.Json;
 using System.Text.Json.Serialization;
+using Server.Errors;
 using Server.Transfer;
 
 namespace Server.Tools.Search;
@@ -33,20 +34,44 @@ public readonly struct SearchInput(
     {
         if (!arguments.TryGetValue("searchMode", out JsonElement searchMode))
         {
-            throw new ArgumentException($"Expected parameter $type");
+            throw new WikiMcpException(
+                "Expected parameter 'searchMode'", 
+                "Include the parameter in the request arguments!");
         }
 
         if (!arguments.TryGetValue("term", out JsonElement term))
         {
-            throw new ArgumentException($"Expected parameter $term");
+            throw new WikiMcpException(
+                "Expected parameter 'term'",
+                "Include the parameter in the request arguments!");
         }
-
+        
         bool result = arguments.TryGetValue("limit", out JsonElement limit);
 
-        return new SearchInput(
-            searchMode.GetString()!,
-            term.GetString()!,
-            result ? limit.GetByte() : (byte)50);
+        switch (result)
+        {
+            case true:
+                if (!limit.TryGetByte(out byte limitValue))
+                {
+                    throw new WikiMcpException(
+                        $"Parameter 'limit' must be of type byte. Valid value range is {byte.MinValue} and {byte.MaxValue}.");
+                }
+
+                if (limitValue > 100)
+                {
+                    throw new WikiMcpException(
+                        $"Parameter 'limit' must have a value between 1 and 100.");
+                }
+                
+                return new SearchInput(
+                    searchMode.ToString(),
+                    term.ToString(), 
+                    limitValue);
+            case false:
+                return new SearchInput(
+                    searchMode.ToString(),
+                    term.ToString());
+        }
     }
 }
 

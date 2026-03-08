@@ -1,5 +1,6 @@
 ﻿using System.Text.Json;
 using System.Text.Json.Serialization;
+using Server.Errors;
 
 namespace Server.Tools.Media;
 
@@ -14,7 +15,7 @@ public readonly struct MediaFileInput(
     {
         if (!arguments.TryGetValue("title", out JsonElement title))
         {
-            throw new ArgumentException($"Expected parameter $title");
+            throw new WikiMcpException("Expected parameter 'title'", "Include this property in the request arguments");
         }
         
         return new MediaFileInput(title.GetString()!);

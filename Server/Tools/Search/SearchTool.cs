@@ -12,7 +12,7 @@ public readonly struct SearchErrorContext : IErrorContext
     {
         return model.HttpCode switch
         {
-            400 => throw new NotImplementedException(),
+            400 => (model.MessageTranslation["en"], null),
             500 => ("Search error on the wikipedia server", null),
             _ => throw new NotSupportedException(
                 $"Handling error code {model.HttpCode} for search tool is not supported.")
@@ -47,12 +47,11 @@ public static class SearchTool
         {
             "keyword" => "search/page",
             "title" => "search/title",
-            _ => throw new NotSupportedException(
-                $"Wikipedia search type {input.SearchMode} not implemented")
+            _ => throw new WikiMcpException(
+                $"Wikipedia search type {input.SearchMode} is not supported. Supported values are 'keyword' or 'title'.")
         };
 
         url = $"{url}?q={input.Term}&limit={input.Limit}";
-        Console.WriteLine(url);
         
         using HttpResponseMessage response = await httpClient.GetAsync(url, ct);
 

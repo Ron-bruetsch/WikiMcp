@@ -47,8 +47,16 @@ public static class HtmlPageTool
         RequestContext<CallToolRequestParams> request,
         CancellationToken ct)
     {
-        PageInput input = PageInput.From(request.Params!.Arguments!);
-        string url = $"page/{input.Title}/html?redirect=no&flavor=edit";
+        if (!request.Params!.Arguments!.TryGetValue("title", out JsonElement titleJson))
+        {
+            throw new WikiMcpException(
+                "Expected parameter 'title'",
+                "Include this parameter in the request.");
+        }
+        
+        string title = titleJson.GetString()!;
+        
+        string url = $"page/{title}/html?redirect=no&flavor=edit";
         
         using HttpResponseMessage response = await httpClient.GetAsync(url, ct);
         if (!response.IsSuccessStatusCode)
@@ -56,7 +64,7 @@ public static class HtmlPageTool
             throw await WikipediaException.FromAsync<PageErrorContext>(response, ct);
         }
 
-        url = $"transform/html/to/wikitext/{input.Title}";
+        url = $"transform/html/to/wikitext/{title}";
         string html = await response.Content.ReadAsStringAsync(ct); 
         var dom = new HtmlDocument();
         dom.LoadHtml(html);
@@ -124,7 +132,9 @@ public static class PageTool
         {
             "bare" => $"page/{input.Title}/bare",
             "html" => $"page/{input.Title}/with_html",
-            _ => throw new ArgumentOutOfRangeException()
+            _ => throw new WikiMcpException(
+                "The provided mode is not supported.", 
+                "Use 'bare' or 'html' instead.")
         };
 
         using HttpResponseMessage response = await httpClient.GetAsync(url, ct);

@@ -1,6 +1,8 @@
 using System.Net.Http.Headers;
+using System.Text.Json;
 using ModelContextProtocol.Protocol;
 using ModelContextProtocol.Server;
+using Server.Errors;
 using Server.Tools.History;
 using Server.Tools.Media;
 using Server.Tools.Page;
@@ -69,7 +71,7 @@ internal static class Program
             ]
         });
 
-    private static ValueTask<CallToolResult> CallToolAsync(
+    private static async ValueTask<CallToolResult> CallToolAsync(
         RequestContext<CallToolRequestParams> request,
         CancellationToken ct)
     {
@@ -77,17 +79,17 @@ internal static class Program
         {
             return request.Params!.Name switch
             {
-                SearchTool.Name => SearchTool.RunAsync(HttpClient, request, ct),
-                PageTool.Name => PageTool.RunAsync(HttpClient, request, ct),
-                HtmlPageTool.Name => HtmlPageTool.RunAsync(HttpClient, request, ct),
-                MediaFileTool.Name => MediaFileTool.RunAsync(HttpClient, request, ct),
-                HistoryTool.Name => HistoryTool.RunAsync(HttpClient, request, ct),
-                _ => ValueTask.FromResult(NotFoundError(request.JsonRpcRequest.Method))
+                SearchTool.Name => await SearchTool.RunAsync(HttpClient, request, ct),
+                PageTool.Name => await PageTool.RunAsync(HttpClient, request, ct),
+                HtmlPageTool.Name => await  HtmlPageTool.RunAsync(HttpClient, request, ct),
+                MediaFileTool.Name => await MediaFileTool.RunAsync(HttpClient, request, ct),
+                HistoryTool.Name => await HistoryTool.RunAsync(HttpClient, request, ct),
+                _ => NotFoundError(request.JsonRpcRequest.Method)
             };
         }
         catch (Exception ex)
         {
-            return ValueTask.FromResult(FromException(ex));
+            return FromException(ex);
         }
     }
 
@@ -95,6 +97,11 @@ internal static class Program
     {
         return ex switch
         {
+            WikiMcpException or WikipediaException => new CallToolResult()
+            {
+                IsError = true,
+                StructuredContent = JsonSerializer.SerializeToElement(ex)
+            },
             _ => new CallToolResult()
             {
                 IsError = true,

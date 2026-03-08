@@ -14,11 +14,11 @@ public readonly struct HistoryErrorContext : IErrorContext
         switch (model.HttpCode)
         {
             case 400:
-                throw new NotImplementedException();
+                return (model.MessageTranslation["en"], "Fix the arguments in the request");
             case 404:
                 return ("Title or revision not found", null);
             default:
-                throw new NotSupportedException(
+                throw new WikiMcpException(
                     $"Handling error code {model.HttpCode} for history tool is not supported.");
         }
     }
@@ -63,9 +63,7 @@ public static class HistoryTool
         
         if (!response.IsSuccessStatusCode)
         { 
-            var body = await response.Content.ReadAsStringAsync(ct);
-            Console.WriteLine(body);
-            //throw await WikipediaException.FromAsync<HistoryErrorContext>(response, ct);     
+            throw await WikipediaException.FromAsync<HistoryErrorContext>(response, ct);     
         }
 
         Paged<Revision> page = await response.Content.ReadFromJsonAsync<Paged<Revision>>(ct);

@@ -1,6 +1,7 @@
 ﻿using System.ComponentModel;
 using System.Text.Json;
 using System.Text.Json.Serialization;
+using Server.Errors;
 using Server.Wikipedia;
 
 namespace Server.Tools.History;
@@ -8,9 +9,9 @@ namespace Server.Tools.History;
 [method: JsonConstructor]
 public readonly struct HistoryInput(
     string title,
-    uint? olderThan,
-    uint? newerThan,
-    string? filter)
+    uint? olderThan=null,
+    uint? newerThan=null,
+    string? filter=null)
 {
     [JsonPropertyName("title")]
     [Description("The title of the wikipedia article")]
@@ -32,18 +33,49 @@ public readonly struct HistoryInput(
     {
         if (!arguments.TryGetValue("title", out JsonElement title))
         {
-            throw new  ArgumentException("Expected parameter title");
+            throw new WikiMcpException(
+                "Expected parameter title",
+                "Supply the title property in our request");
         }
 
         bool ota = arguments.TryGetValue("olderThan", out JsonElement olderThan);
         bool nta = arguments.TryGetValue("newerThan", out JsonElement newerThan);
         bool fa = arguments.TryGetValue("filter", out JsonElement filter);
 
-        return new HistoryInput(
-            title.GetString()!,
-            ota ? olderThan.GetUInt32() : null,
-            nta ? newerThan.GetUInt32() : null,
-            fa ? filter.GetString()! : null);
+        switch (ota, nta)
+        {
+            case (true, true):
+                throw new WikiMcpException(
+                    $"Only one of the arguments 'olderThan' and 'newerThan' is allowed at the time!");
+            case (true, false):
+                if (!olderThan.TryGetUInt32(out uint olderValue))
+                {
+                    throw new WikiMcpException(
+                        $"Value for parameter 'olderThan' must be an unsigned integer. Allowed value range is {uint.MinValue} to {uint.MaxValue}!",
+                        "Fix your input");
+                }
+
+                return new HistoryInput(
+                    title.GetString()!,
+                    olderValue,
+                    filter: filter.GetString());
+            case (false, true):
+                if (!newerThan.TryGetUInt32(out uint newerValue))
+                {
+                    throw new WikiMcpException(
+                        $"Value for parameter 'newerThan' must be an unsigned integer. Allowed value range is {uint.MinValue} to {uint.MaxValue}!",
+                        "Fix your input");
+                }
+                
+                return new HistoryInput(
+                    title.GetString()!,
+                    newerThan: newerValue,
+                    filter: filter.GetString());
+            case (false, false):
+                return new HistoryInput(
+                    title.GetString()!,
+                    filter: filter.GetString());
+        }
     }
 }
 

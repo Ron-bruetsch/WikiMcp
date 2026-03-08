@@ -1,6 +1,7 @@
 ﻿using System.ComponentModel;
 using System.Text.Json;
 using System.Text.Json.Serialization;
+using Server.Errors;
 using Server.Wikipedia;
 
 namespace Server.Tools.Page;
@@ -22,12 +23,16 @@ public readonly struct PageInput(
     {
         if (!arguments.TryGetValue("mode", out JsonElement mode))
         {
-            throw new ArgumentException($"Expected parameter $mode");
+            throw new WikiMcpException(
+                "Expected parameter 'mode'", 
+                "Include this parameter in the request. Valid values are 'bare' or 'html'");
         }
 
         if (!arguments.TryGetValue("title", out JsonElement title))
         {
-            throw new ArgumentException($"Expected parameter $title");
+            throw new WikiMcpException(
+                "Expected parameter 'title'", 
+                "Include this parameter in the request.");
         }
 
         return new PageInput(

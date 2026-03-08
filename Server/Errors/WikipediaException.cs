@@ -43,20 +43,16 @@ public readonly struct ErrorResponseObject(
 /// <summary>
 /// This class represents http error status codes coming from Wikipedia
 /// </summary>
-public sealed class WikipediaException : Exception
+public sealed class WikipediaException : WikiMcpException
 {
     public HttpStatusCode ErrorCode { get; }
-
-    [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
-    public string? Instruction { get; }
 
     private WikipediaException(
         HttpStatusCode errorCode,
         string? instruction,
-        string message) : base(message)
+        string message) : base(message, instruction)
     {
         ErrorCode = errorCode;
-        Instruction = instruction;
     }
 
     public static async ValueTask<WikipediaException> FromAsync<TCtx>(
