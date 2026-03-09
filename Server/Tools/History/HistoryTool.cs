@@ -3,7 +3,6 @@ using System.Text.Json;
 using ModelContextProtocol.Protocol;
 using ModelContextProtocol.Server;
 using Server.Errors;
-using Server.Wikipedia;
 
 namespace Server.Tools.History;
 
@@ -27,7 +26,7 @@ public readonly struct HistoryErrorContext : IErrorContext
 
 public static class HistoryTool
 {
-    public const string Name = "get-article-history";
+    public const string Name = "retrieve-article-history";
 
     private const string Description =
         """
@@ -72,8 +71,8 @@ public static class HistoryTool
             throw await WikipediaException.FromAsync<HistoryErrorContext>(response, ct);     
         }
 
-        Paged<Revision> page = await response.Content.ReadFromJsonAsync<Paged<Revision>>(ct);
-        IEnumerable<HistoryOutput> output = page.Revisions!.Select(x => new HistoryOutput(x));
+        RevisionPage page = await response.Content.ReadFromJsonAsync<RevisionPage>(ct);
+        IEnumerable<HistoryOutput> output = page.Items!.Select(x => new HistoryOutput(x));
 
         return Helper.AsStructuredContent(new McpOutput<IEnumerable<HistoryOutput>>("object", output));
     }
@@ -83,7 +82,7 @@ public static class HistoryTool
         {
             Name = Name,
             Description = Description,
-            Title = "Get Article History",
+            Title = "Retrieve Article History",
             InputSchema = InputSchema,
             OutputSchema = OutputSchema,
         };

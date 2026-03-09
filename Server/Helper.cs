@@ -10,29 +10,12 @@ namespace Server;
 
 public static class Helper
 {
-    public static CallToolResult AsJsonResult<T>(T model)
-    {
-        return new CallToolResult()
-        {
-            IsError = false,
-            Content =
-            [
-                new TextContentBlock()
-                {
-                    Text = JsonSerializer.Serialize(model),
-                }
-            ]
-        };
-    }
-
-    public static CallToolResult AsStructuredContent<T>(T model)
-    {
-        return new CallToolResult()
+    public static CallToolResult AsStructuredContent<T>(T model) =>
+        new()
         {
             IsError = false,
             StructuredContent = JsonSerializer.SerializeToElement(model),
         };
-    }
 
     private static readonly JsonSerializerOptions Options = new()
     {

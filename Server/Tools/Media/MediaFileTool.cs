@@ -2,6 +2,7 @@
 using ModelContextProtocol.Protocol;
 using ModelContextProtocol.Server;
 using Server.Errors;
+using Server.Tools.Page;
 using Server.Wikipedia;
 
 namespace Server.Tools.Media;
@@ -34,14 +35,14 @@ public static class MediaFileTool
         Retrieves images related to the Wikipedia article identified by the provided title 
         """;
 
-    private static readonly JsonElement InputSchema = Helper.ToJsonSchema<MediaFileInput>();
+    private static readonly JsonElement InputSchema = Helper.ToJsonSchema<TitleInput>();
     
     public static async ValueTask<CallToolResult> RunAsync(
         HttpClient httpClient,
         RequestContext<CallToolRequestParams> request,
         CancellationToken ct)
     {
-        MediaFileInput input = MediaFileInput.From(request.Params!.Arguments!);
+        TitleInput input = TitleInput.From(request.Params!.Arguments!);
         string url = $"page/{input.Title}/links/media";
         
         using HttpResponseMessage response = await httpClient.GetAsync(url, ct);
@@ -51,8 +52,8 @@ public static class MediaFileTool
             throw await WikipediaException.FromAsync<MediaFileErrorContext>(response, ct);
         }
         
-        Paged<MediaFile> content = await response.Content.ReadFromJsonAsync<Paged<MediaFile>>(ct);
-        List<Task<ContentBlock?>> tasks = content.Files!.Select(x => TryIntoFileContentAsync(httpClient, x, ct)).ToList();
+        FilesPage content = await response.Content.ReadFromJsonAsync<FilesPage>(ct);
+        List<Task<ContentBlock?>> tasks = content.Items!.Select(x => TryIntoFileContentAsync(httpClient, x, ct)).ToList();
 
         ContentBlock?[] imageContents = await Task.WhenAll(tasks);
 
@@ -126,7 +127,7 @@ public static class MediaFileTool
         {
             Name = Name,
             Description = Description,
-            Title = "Retrieve Article images Tool",
+            Title = "Retrieve Article Images Tool",
             InputSchema = InputSchema,
         };
 }

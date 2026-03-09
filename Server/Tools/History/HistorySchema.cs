@@ -103,20 +103,27 @@ public readonly struct HistoryOutput(
     int? delta,
     string? comment)
 {
+    [Description("The identifier of the wikipedia revision")]
     public uint Id { get; } = id;
     
+    [Description("Information about the article")]
     public PageInfo Page { get; } = page;
     
+    [Description("The author that made the revision")]
     public User User { get; } = user;
     
+    [Description("The size of the revision")]
     public uint Size { get; } = size;
     
+    [Description("Specifies if the revision was minor")]
     public bool Minor { get; } = minor;
     
+    [Description("The timestamp of the revision")]
     public string Timestamp { get; } = timestamp;
     
     public int? Delta { get; } = delta;
-    
+
+    [Description("A comment from the author explaining the revision")]
     public string? Comment { get; } = comment;
     
     public HistoryOutput(Revision model) : this(

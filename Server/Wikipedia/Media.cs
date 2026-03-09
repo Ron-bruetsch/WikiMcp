@@ -1,4 +1,5 @@
-﻿using System.Text.Json.Serialization;
+﻿using System.ComponentModel;
+using System.Text.Json.Serialization;
 
 namespace Server.Wikipedia;
 
@@ -36,9 +37,11 @@ public readonly struct User(
     string name)
 {
     [JsonPropertyName("id")]
+    [Description("The id of the wikipedia user")]
     public uint Id { get; } = id;
     
     [JsonPropertyName("name")]
+    [Description("The name of the wikipedia user")]
     public string Name { get; } = name;
 }
 
@@ -48,8 +51,10 @@ public readonly struct MediaFileLatest(
     User user)
 {
     [JsonPropertyName("timestamp")]
+    [Description("The timestamp of the wikipedia change")]
     public string Timestamp { get; } = timestamp;
     
     [JsonPropertyName("user")]
+    [Description("The user that made the change")]
     public User User { get; } = user;
 }

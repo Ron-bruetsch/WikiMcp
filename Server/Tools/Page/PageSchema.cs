@@ -7,29 +7,15 @@ using Server.Wikipedia;
 namespace Server.Tools.Page;
 
 [method: JsonConstructor]
-public readonly struct PageInput(
-    string mode,
+public readonly struct TitleInput(
     string title)
 {
-    [JsonPropertyName("mode")]
-    [Description("Specifies what information should be included in the response. Valid options are bare or html")]
-    public string Mode { get; } = mode;
-
     [JsonPropertyName("title")]
     [Description("The title of the wikipedia page that should be retrieved")]
     public string Title { get; } = title;
 
-    public static PageInput From(IDictionary<string, JsonElement> arguments)
+    public static TitleInput From(IDictionary<string, JsonElement> arguments)
     {
-        if (!arguments.TryGetValue("mode", out JsonElement mode) 
-            || mode.ValueKind != JsonValueKind.String)
-        {
-            throw new WikiMcpException(
-                "Validation error",
-                "Expected parameter 'mode'", 
-                "Include this parameter in the request. Valid values are 'bare' or 'html'");
-        }
-
         if (!arguments.TryGetValue("title", out JsonElement title)  
             || title.ValueKind != JsonValueKind.String)
         {
@@ -39,8 +25,7 @@ public readonly struct PageInput(
                 "Include this parameter in the request.");
         }
 
-        return new PageInput(
-            mode.GetString()!,
+        return new TitleInput(
             title.ToString()!);
     }
 }
@@ -50,26 +35,17 @@ public readonly struct PageOutput(
     string title,
     PageLatest latest,
     string contentModel,
-    string? htmlUrl,
-    string? html,
-    string? source)
+    string content)
 {
+    [Description("The title of the wikipedia article")]
     public string Title { get; } = title;
     
+    [Description("The latest for this article")]
     public PageLatest Latest { get; } = latest;
     
+    [Description("Specifies the format of the content")]
     public string ContentModel { get; } = contentModel;
     
-    public string? HtmlUrl { get; } = htmlUrl;
-    
-    public string? Html { get; } = html;
-    
-    public string? Source { get; } = source;
-}
-
-[method: JsonConstructor]
-public readonly struct ConvertObject(string html)
-{
-    [JsonPropertyName("html")]
-    public string Html { get; } = html;
+    [Description("Contains the content of the article in the wikitext format")]
+    public string Content { get; } = content;
 }

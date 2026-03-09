@@ -3,25 +3,24 @@ using System.Text.Json.Serialization;
 
 namespace Server.Tools;
 
-/// <summary>
-/// Little wrapper object to handle paged results
-/// </summary>
-/// <param name="items"></param>
-/// <typeparam name="T"></typeparam>
 [method: JsonConstructor]
-public readonly struct Paged<T>(
-    IEnumerable<T>? pages,
-    IEnumerable<T>? revisions,
-    IEnumerable<T>? files)
+public readonly struct SearchPage(
+    IEnumerable<Wikipedia.Search> pages)
 {
-    [JsonPropertyName("pages")]
-    public IEnumerable<T>? Pages { get; } = pages;   
-    
-    [JsonPropertyName("revisions")]
-    public IEnumerable<T>? Revisions { get; } = revisions;
-    
-    [JsonPropertyName("files")]
-    public IEnumerable<T>? Files { get; } = files;
+    [JsonPropertyName("pages")] public IEnumerable<Wikipedia.Search> Items { get; } = pages;
+}
+
+[method: JsonConstructor]
+public readonly struct RevisionPage(
+    IEnumerable<Wikipedia.Revision> revisions)
+{
+    [JsonPropertyName("revisions")] public IEnumerable<Wikipedia.Revision> Items { get; } = revisions;
+}
+
+[method: JsonConstructor]
+public readonly struct FilesPage(IEnumerable<Wikipedia.MediaFile> files)
+{
+    [JsonPropertyName("files")]  public IEnumerable<Wikipedia.MediaFile> Items { get; } = files;
 }
 
 [method: JsonConstructor]
@@ -29,6 +28,7 @@ public readonly struct McpOutput<T>(string type, T value)
 {
     [Description("The type what is being serialized")]
     public string Type { get; } = type;
-
+    
+    [Description("The value that represents the actual content")]
     public T Value { get; } = value;
 }

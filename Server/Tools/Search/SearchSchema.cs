@@ -81,11 +81,15 @@ public readonly struct SearchOutput(
     string? description,
     Thumbnail? thumbnail)
 {
+    [Description("Title of the wikipedia article")]
     public string Title { get; } = title;
     
+    [Description("An excerpt showing the place where the keyword appeared")]
     public string Excerpt { get; } = excerpt;
     
+    [Description("Description of the wikipedia article")]
     public string? Description { get; } = description;
     
+    [JsonPropertyName("The Thumbnail of the article if one is present")]
     public Thumbnail? Thumbnail { get; } = thumbnail;
 }

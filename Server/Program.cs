@@ -64,7 +64,6 @@ internal static class Program
             Tools = [
                 SearchTool.Tool(),
                 PageTool.Tool(),
-                HtmlPageTool.Tool(),
                 MediaFileTool.Tool(),
                 HistoryTool.Tool()
             ]
@@ -79,8 +78,7 @@ internal static class Program
             return request.Params!.Name switch
             {
                 SearchTool.Name => await SearchTool.RunAsync(HttpClient, request, ct),
-                PageTool.Name => await PageTool.RunAsync(HttpClient, request, ct),
-                HtmlPageTool.Name => await  HtmlPageTool.RunAsync(HttpClient, request, ct),
+                PageTool.Name => await PageTool.RunAsync(HttpClient, request, ct), 
                 MediaFileTool.Name => await MediaFileTool.RunAsync(HttpClient, request, ct),
                 HistoryTool.Name => await HistoryTool.RunAsync(HttpClient, request, ct),
                 _ => NotFoundError(request.JsonRpcRequest.Method)
@@ -96,7 +94,9 @@ internal static class Program
     {
         McpOutput<IEnumerable<ErrorResponse>> error = ex switch
         {
-            WikiMcpException exception => new McpOutput<IEnumerable<ErrorResponse>>("object", [new WikiErrorResponse(exception)]),
+            WikiMcpException exception => new McpOutput<IEnumerable<ErrorResponse>>(
+                "object", 
+                [new WikiErrorResponse(exception)]),
             _ => new McpOutput<IEnumerable<ErrorResponse>>("object", [new ErrorResponse("Server error", ex)])
         };
 
@@ -134,5 +134,5 @@ public sealed class WikiErrorResponse(
     WikiMcpException ex) : ErrorResponse(ex.Title, ex)
 {
     [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
-    public string? Instruction { get; } =  ex.Message;
+    public string? Instruction { get; } = ex.Instruction;
 }

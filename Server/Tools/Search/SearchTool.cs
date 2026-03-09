@@ -1,5 +1,4 @@
 ﻿using System.Text.Json;
-using System.Text.Json.Schema;
 using ModelContextProtocol.Protocol;
 using ModelContextProtocol.Server;
 using Server.Errors;
@@ -59,8 +58,8 @@ public static class SearchTool
             throw await WikipediaException.FromAsync<SearchErrorContext>(response, ct);
         }
 
-        Paged<Wikipedia.Search> page = await response.Content.ReadFromJsonAsync<Paged<Wikipedia.Search>>(ct);
-        IEnumerable<SearchOutput> output = page.Pages!.Select(x =>
+        SearchPage page = await response.Content.ReadFromJsonAsync<SearchPage>(ct);
+        IEnumerable<SearchOutput> output = page.Items!.Select(x =>
             new SearchOutput(x.Title, x.Excerpt, x.Description, x.Thumbnail));
 
         return Helper.AsStructuredContent(new McpOutput<IEnumerable<SearchOutput>>("object", output));
